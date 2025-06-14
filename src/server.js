@@ -27,7 +27,7 @@ app.use(
 );
 
 // Routes
-app.use('api/account',userRoutes);
+app.use('/api/account',userRoutes);
 
 
 
