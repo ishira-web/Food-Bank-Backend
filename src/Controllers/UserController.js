@@ -27,8 +27,8 @@ export const userRegistration = async(req,res)=>{
             gender
         });
         const savedUser = await newUser.save();
-        const payLoad = {id : savedUser._id , role : savedUser.role , email : savedUser.email};
-        const token = jwt.sign(payLoad,process.env.SECRET_KEY, {expiresIn: '7d'});
+        const payload = { id: savedUser._id, role: savedUser.role, email: savedUser.email };
+        const token = jwt.sign(payload,process.env.SECRET_KEY, {expiresIn: '7d'});
         return res.status(201).json({
          message : "user created successfully !",
          result :{savedUser},
@@ -41,4 +41,36 @@ export const userRegistration = async(req,res)=>{
          error: error.message 
         });
     }
+}
+
+
+// User Login
+
+export const userLogin = async (req,res)=>{
+   try {
+     const {email , password} =  req.body;
+     if(!email || !password){
+        return res.status(403).json({message : 'Email ad password requried !'})
+     }
+     const user = await UserModel.findOne({email});
+     if(!user){
+        return res.status(403).json({message : 'Invalid credentials'})
+     }
+     const checkPassword = bcrypt.compare(password, user.password);
+     if(!checkPassword){
+        return res.status(403).json({message : 'Password didnt match!'})
+     }
+     if(user.isActive === false){
+         return res.status(403).json({ message: 'Account is inactive' });
+     }
+     const payload = { id: user._id, role: user.role, email: user.email };
+     const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '7d' });
+     return res.status(201).json({
+        message : "Login successfully",
+        token
+     });
+   } catch (error) {
+    console.error("Error logging in user:", error);
+    res.status(500).json({ message: "Error logging in user", error: error.message });
+   }
 }
