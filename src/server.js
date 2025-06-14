@@ -1,8 +1,8 @@
 import express from 'express'
 import dotnev from 'dotenv'
-import Jwt from 'jsonwebtoken'
 import cors from 'cors'
 import { connectDB } from './DB/MongoDB.js';
+import { userRoutes } from './Routes/UserRoutes.js';
 
 const app =  express();
 app.use(cors());
@@ -26,11 +26,14 @@ app.use(
   }
 );
 
+// Routes
+app.use('api/account',userRoutes);
+
+
+
 
 
 const port = process.env.PORT
-
-
 app.listen(port,()=>{
     connectDB();
     console.log(`Server is running on port http://localhost:${port}`)

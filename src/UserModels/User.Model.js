@@ -36,10 +36,10 @@ const userSchema = mongoose.Schema({
     },
     phoneNumber : {
         type : Number,
-        match : [/^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/ , 'PLease enter valide number']
+        match : [/^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/ , 'PLease enter valide number'],
         required : true
     }
 });
 
-const UserModel = mongoose.Model('Users',userSchema);
+const UserModel = mongoose.model('Users',userSchema);
 export default UserModel;
