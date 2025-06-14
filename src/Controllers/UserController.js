@@ -44,6 +44,7 @@ export const userRegistration = async(req,res)=>{
 }
 
 
+
 // User Login
 
 export const userLogin = async (req,res)=>{
@@ -74,3 +75,6 @@ export const userLogin = async (req,res)=>{
     res.status(500).json({ message: "Error logging in user", error: error.message });
    }
 }
+
+
+// create admin
