@@ -132,22 +132,9 @@ export const createAdmin = async(req,res)=>{
 export const updateUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const {
-      email,
-      firstName,
-      lastName,
-      gender,
-      phoneNumber,
-      password
-    } = req.body;
+    const {email,firstName,lastName,gender,phoneNumber,password} = req.body;
 
-    const updatedFields = {
-      email,
-      firstName,
-      lastName,
-      gender,
-      phoneNumber,
-    };
+    const updatedFields = {email,firstName,lastName,gender,phoneNumber};
 
     if (password) {
       const bcrypt = require('bcryptjs');
