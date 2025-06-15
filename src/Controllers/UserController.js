@@ -129,11 +129,51 @@ export const createAdmin = async(req,res)=>{
 }
 
 // Update profile password
+export const updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const {
+      email,
+      firstName,
+      lastName,
+      gender,
+      phoneNumber,
+      password
+    } = req.body;
 
-export const updateUser = async(req,res)=>{
-    try {
-        
-    } catch (error) {
-        
+    const updatedFields = {
+      email,
+      firstName,
+      lastName,
+      gender,
+      phoneNumber,
+    };
+
+    if (password) {
+      const bcrypt = require('bcryptjs');
+      const salt = await bcrypt.genSalt(10);
+      updatedFields.password = await bcrypt.hash(password, salt);
     }
-}
+
+    const updatedUser = await UserModel.findByIdAndUpdate(userId, updatedFields, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      message: "User updated successfully!",
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({
+      message: "Error updating user",
+      error: error.message,
+    });
+  }
+};
