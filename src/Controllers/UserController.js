@@ -77,4 +77,63 @@ export const userLogin = async (req,res)=>{
 }
 
 
-// create admin
+// Check admin function
+export const isAdmin = async(req)=>{
+    if(!req.user){
+        return false
+    }
+    return req.user.role = "admin"
+}
+
+// Check user fucntion
+export const isCustomer =  async(req)=>{
+   if(!req.user){
+    return false
+   }
+   return req.user.role = "user"
+}
+
+// Create Admin
+export const createAdmin = async(req,res)=>{
+    try {
+        if(!isAdmin(req)){
+            return res.status(403).json({message:"Please login as a admin to create admin"})
+        }
+        const {firstName,lastName,email,password,isActive,role,phoneNumber} =  req.body;
+        if (!firstName || !lastName || !email || !password || phoneNumber){
+            return res.status(403).json({message:"Requested body is missing !"})
+        }
+        const checkEmail = UserModel.findOne({email});
+        if(checkEmail){
+            return res.status(401).json({message:"This Email is already entred !"})
+        }
+        const hashedPassword = bcrypt.hash(password,10);
+        const newUser = new UserModel({
+            role : "admin",
+            email,
+            firstName,
+            lastName,
+            password : hashedPassword,
+            phoneNumber,
+            isActive : "true",
+        });
+        const savedUser = await newUser.save();
+        return res.status(201).json({message:"Admin created successfully",savedUser})
+    } catch (error) {
+        console.error("Error creating donor:", error);
+        res.status(500).json({ 
+        message: "Error creating donor", 
+        error: error.message 
+    });
+    }
+}
+
+// Update profile password
+
+export const updateUser = async(req,res)=>{
+    try {
+        
+    } catch (error) {
+        
+    }
+}
