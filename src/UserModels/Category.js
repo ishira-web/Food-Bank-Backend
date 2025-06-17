@@ -6,5 +6,5 @@ const categorySchema = mongoose.Schema({
     updatedAt : {type:Date , default:Date.now}
 })
 
-const Category = mongoose.model('Category',categorySchema);
+const Category = mongoose.model('categories',categorySchema);
 export default Category;

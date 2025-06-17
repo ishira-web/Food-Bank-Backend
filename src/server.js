@@ -5,6 +5,7 @@ import { connectDB } from './DB/MongoDB.js';
 import { userRoutes } from './Routes/UserRoutes.js';
 import categoryRoutes from './Routes/CategoryRoutes.js';
 import jwt from 'jsonwebtoken'
+import foodRoute from './Routes/FoodRoutes.js';
 dotnev.config()
 const app =  express();
 app.use(cors());
@@ -31,7 +32,7 @@ app.use(
 // Routes
 app.use('/api/account',userRoutes);
 app.use('/api/category',categoryRoutes)
-
+app.use('/api/food',foodRoute);
 
 
 

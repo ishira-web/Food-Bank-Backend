@@ -1,5 +1,5 @@
 import Category from "../UserModels/Category.js";
-
+import Food from "../UserModels/Food.js";
 
 export const createCategory = async (req, res) => {
     try {
@@ -55,3 +55,24 @@ export const getCategories = async(req,res)=>{
     res.status(500).json({success: false,message: "Failed to fetch categories",error: error.message,});
     }
 }
+
+export const getAllbyCategoryName = async (req, res) => {
+  try {
+    const { categoryName } = req.params;
+    if (!categoryName) {
+     return res.status(400).json({ message: "Category name is required" });}
+    const category = await Category.findOne({ categoryName });
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+    const foods = await Food.find({ categoryName: category._id });
+    res.status(200).json({success: true,message: `Foods in category: ${categoryName}`,data: foods,});
+  } catch (error) {
+    console.error("Error fetching foods by category name:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
