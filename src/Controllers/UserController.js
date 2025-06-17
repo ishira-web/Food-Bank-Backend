@@ -79,18 +79,18 @@ export const userLogin = async (req,res)=>{
 
 // Check admin function
 export const isAdmin = async(req)=>{
-    if(!req.user){
+    if(!req?.user){
         return false
     }
-    return req.user.role = "admin"
+    return req.user.role === "admin"
 }
 
 // Check user fucntion
 export const isCustomer =  async(req)=>{
-   if(!req.user){
+   if(!req?.user){
     return false
    }
-   return req.user.role = "user"
+   return req.user.role === "user"
 }
 
 // Create Admin
