@@ -3,6 +3,7 @@ import dotnev from 'dotenv'
 import cors from 'cors'
 import { connectDB } from './DB/MongoDB.js';
 import { userRoutes } from './Routes/UserRoutes.js';
+import categoryRoutes from './Routes/CategoryRoutes.js';
 
 const app =  express();
 app.use(cors());
@@ -28,7 +29,7 @@ app.use(
 
 // Routes
 app.use('/api/account',userRoutes);
-
+app.use('/api/category',categoryRoutes)
 
 
 
