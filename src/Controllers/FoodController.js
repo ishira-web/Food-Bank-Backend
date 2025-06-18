@@ -11,8 +11,9 @@ export const createFood = async (req, res) => {
       return res.status(400).json({ message: "All fields are required!" });
     }
     
-    const uploadImage = await cloudinary.uploader.upload(image,{folder:"Foods"});
-    const newFood = new Food({foodName,image : uploadImage.secure_url,price,description,categoryName,});
+    const imageStr = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+    const result = await cloudinary.uploader.upload(imageStr, {folder: "food_images",});
+    const newFood = new Food({foodName,image : result.secure_url,price,description,categoryName,});
     await newFood.save();
     return res.status(201).json({success: true,message: "Food item created successfully!",data: newFood,});
   } catch (error) {
