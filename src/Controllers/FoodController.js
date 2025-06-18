@@ -1,13 +1,11 @@
 import Food from "../UserModels/Food.js";
-import Category from "../UserModels/Category.js";
-import {v2 as cloudinary} from 'cloudinary'
-
+import cloudinary from "../Configs/Cloudinary.js";
 
 // Create Food
 export const createFood = async (req, res) => {
   try {
-    const { foodName, image, price, description, categoryName } = req.body;
-    if (!foodName || !image || !price || !description || !categoryName) {
+    const { foodName,  price, description, categoryName } = req.body;
+    if (!foodName || !req.file || !price || !description || !categoryName) {
       return res.status(400).json({ message: "All fields are required!" });
     }
     
