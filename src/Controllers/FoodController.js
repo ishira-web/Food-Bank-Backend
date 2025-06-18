@@ -12,7 +12,7 @@ export const createFood = async (req, res) => {
     }
     
     const imageStr = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
-    const result = await cloudinary.uploader.upload(imageStr, {folder: "food_images",});
+    const result = await cloudinary.uploader.upload(imageStr, {folder: "Foods",});
     const newFood = new Food({foodName,image : result.secure_url,price,description,categoryName,});
     await newFood.save();
     return res.status(201).json({success: true,message: "Food item created successfully!",data: newFood,});
