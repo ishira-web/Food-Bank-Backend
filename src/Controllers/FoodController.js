@@ -1,14 +1,18 @@
 import Food from "../UserModels/Food.js";
 import Category from "../UserModels/Category.js";
-// Create Food
+import {v2 as cloudinary} from 'cloudinary'
 
+
+// Create Food
 export const createFood = async (req, res) => {
   try {
     const { foodName, image, price, description, categoryName } = req.body;
     if (!foodName || !image || !price || !description || !categoryName) {
       return res.status(400).json({ message: "All fields are required!" });
     }
-    const newFood = new Food({foodName,image,price,description,categoryName,});
+    
+    const uploadImage = await cloudinary.uploader.upload(image,{folder:"Foods"});
+    const newFood = new Food({foodName,image : uploadImage.secure_url,price,description,categoryName,});
     await newFood.save();
     return res.status(201).json({success: true,message: "Food item created successfully!",data: newFood,});
   } catch (error) {
