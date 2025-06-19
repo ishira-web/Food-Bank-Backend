@@ -164,9 +164,12 @@ export const updateUser = async (req, res) => {
 
   } catch (error) {
     console.error("Error updating user:", error);
+    
+    // If Cloudinary upload failed but file was created, clean up
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
+
     res.status(500).json({
       message: "Error updating user",
       error: error.message,
@@ -174,19 +177,19 @@ export const updateUser = async (req, res) => {
   }
 };
 
-// Get user by userID
-export const getUserbyUserId = async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        const user = await UserModel.findById(userId).select('-password');
-        
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
 
-        res.status(200).json(user);
-    } catch (error) {
-        console.error('Error fetching user:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+export const getLoggedInUser = async (req, res) => {
+  try {
+    const userId = req.user.id; // userId from decoded JWT
+    const user = await UserModel.findById(userId).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
+
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
 };
