@@ -1,6 +1,6 @@
 import Food from "../UserModels/Food.js";
 import cloudinary from "../Configs/Cloudinary.js";
-
+import Category from '../UserModels/Category.js'
 // Create Food
 export const createFood = async (req, res) => {
   try {
@@ -44,5 +44,32 @@ export const getAllFoods = async (req, res) => {
       message: "An error occurred while fetching food items",
       error: error.message,
     });
+  }
+};
+
+
+export const getMenu = async (req, res) => {
+  try {
+
+    const categories = await Category.find();
+    const menu = await Promise.all(
+      categories.map(async (category) => {
+        const foods = await Food.find({ categoryName: category._id });
+        return {
+          categoryId: category._id,
+          categoryName: category.categoryName,
+          foods,
+        };
+      })
+    );
+
+    // Step 3: Send response
+    res.status(200).json({
+      success: true,
+      data: menu,
+    });
+  } catch (error) {
+    console.error("Error fetching menu:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
