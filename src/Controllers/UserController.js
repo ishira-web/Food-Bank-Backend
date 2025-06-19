@@ -1,6 +1,7 @@
 import UserModel from "../UserModels/User.Model.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import cloudinary from "../Configs/Cloudinary.js";
 
 // User Registration
 
@@ -128,25 +129,30 @@ export const createAdmin = async(req,res)=>{
     }
 }
 
-// Update profile password
 export const updateUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const {email,firstName,lastName,gender,phoneNumber,password} = req.body;
+    const { email, firstName, lastName, gender, phoneNumber } = req.body;
 
-    const updatedFields = {email,firstName,lastName,gender,phoneNumber};
+    const updatedFields = { email, firstName, lastName, gender, phoneNumber };
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'customer_profile_pictures'});
 
-    if (password) {
-      const bcrypt = require('bcryptjs');
-      const salt = await bcrypt.genSalt(10);
-      updatedFields.password = await bcrypt.hash(password, salt);
+      updatedFields.profilePicture = {
+        public_id: result.public_id,
+        url: result.secure_url,
+      };
+      fs.unlinkSync(req.file.path);
     }
-
-    const updatedUser = await UserModel.findByIdAndUpdate(userId, updatedFields, {
-      new: true,
-      runValidators: true,
-    });
-
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      updatedFields,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -158,9 +164,29 @@ export const updateUser = async (req, res) => {
 
   } catch (error) {
     console.error("Error updating user:", error);
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
     res.status(500).json({
       message: "Error updating user",
       error: error.message,
     });
   }
+};
+
+// Get user by userID
+export const getUserbyUserId = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const user = await UserModel.findById(userId).select('-password');
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
 };
