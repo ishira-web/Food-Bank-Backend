@@ -8,7 +8,8 @@ const reservationSchema = mongoose.Schema({
     numberOfChildren: { type: Number, required: true },
     reservedDate: { type: Date, required: true }, 
     reservedTime: { type: String, required: true }, 
-    resStatus: { type: String,default: "pending", enum: ["pending", "accepted", "rejected"]}
+    resStatus: { type: String,default: "pending", enum: ["pending", "accepted", "rejected"]},
+    specialNote :{type: String}
 });
 
 const Reservation = mongoose.model("Reservation", reservationSchema);
