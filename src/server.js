@@ -6,6 +6,7 @@ import { userRoutes } from './Routes/UserRoutes.js';
 import categoryRoutes from './Routes/CategoryRoutes.js';
 import foodRoute from './Routes/FoodRoutes.js';
 import { optionalToken } from './Middleware/optionalToken.js'; 
+import { router } from './Routes/ReservationRoutes.js';
 
 dotenv.config();
 
@@ -21,7 +22,7 @@ app.use(optionalToken);
 app.use('/api/account', userRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/food', foodRoute);
-
+app.use('/api/reservation',router)
 // Start Server
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
