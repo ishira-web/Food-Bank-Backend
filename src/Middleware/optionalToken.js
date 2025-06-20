@@ -9,7 +9,6 @@ export const optionalToken = (req, res, next) => {
       req.user = decoded;
     } catch (err) {
       console.warn('Invalid token:', err.message);
-      // Optionally: return res.status(403).json({ message: 'Invalid token' });
     }
   }
 
