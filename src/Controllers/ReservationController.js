@@ -38,3 +38,85 @@ export const createReservation = async (req, res) => {
         });
     }
 };
+
+
+export const confirmReservation = async (req, res) => {
+    try {
+        const { reservationId } = req.params;
+        const { status } = req.body;
+        if (!reservationId || !status) {
+            return res.status(400).json({ message: "Reservation ID and status are required" });
+        }
+
+        if (!["accepted", "rejected"].includes(status)) {
+            return res.status(400).json({ message: "Status must be either 'accepted' or 'rejected'" });
+        }
+        const updatedReservation = await Reservation.findByIdAndUpdate(
+            reservationId,
+            { resStatus: status },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedReservation) {
+            return res.status(404).json({ message: "Reservation not found" });
+        }
+
+        res.status(200).json({
+            message: `Reservation ${status} successfully`,
+            reservation: updatedReservation
+        });
+
+    } catch (error) {
+        console.error("Error confirming reservation:", error);
+        
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: "Invalid reservation ID format" });
+        }
+        
+        res.status(500).json({ 
+            message: "Server error while confirming reservation",
+            error: error.message 
+        });
+    }
+};
+
+export const getAllReservations = async (req, res) => {
+    try {
+        const { status, date, sort = '-createdAt', page = 1, limit = 10 } = req.query;
+        const filter = {};
+        if (status) filter.resStatus = status;
+        if (date) filter.reservedDate = { $gte: new Date(date),$lt: new Date(new Date(date).setDate(new Date(date).getDate() + 1))};
+        const skip = (page - 1) * limit;
+        const reservations = await Reservation.find(filter).sort(sort).skip(skip).limit(Number(limit));
+        const total = await Reservation.countDocuments(filter);
+        const pages = Math.ceil(total / limit);
+        res.status(200).json({message: "Reservations retrieved successfully",count: reservations.length, page: Number(page), pages, total, reservations});
+    } catch (error) {
+        console.error("Error getting reservations:", error);
+        res.status(500).json({message: "Server error while retrieving reservations",error: error.message});
+    }
+};
+
+export const rejectReservation = async (req, res) => {
+    try {
+        const { reservationId } = req.params;
+        if (!reservationId) { return res.status(400).json({ message: "Reservation ID is required" });}
+        const rejectedReservation = await Reservation.findByIdAndUpdate(reservationId,{ resStatus: "rejected" },{ new: true });
+        if (!rejectedReservation) {
+            return res.status(404).json({ message: "Reservation not found" });
+        }
+        res.status(200).json({
+            message: "Reservation rejected successfully",
+            reservation: rejectedReservation
+        });
+    } catch (error) {
+        console.error("Error rejecting reservation:", error);
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: "Invalid reservation ID format" });
+        }
+        res.status(500).json({ 
+            message: "Server error while rejecting reservation",
+            error: error.message 
+        });
+    }
+};
