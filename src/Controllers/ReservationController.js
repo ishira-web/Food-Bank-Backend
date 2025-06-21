@@ -43,17 +43,15 @@ export const createReservation = async (req, res) => {
 export const confirmReservation = async (req, res) => {
     try {
         const { reservationId } = req.params;
-        const { status } = req.body;
-        if (!reservationId || !status) {
-            return res.status(400).json({ message: "Reservation ID and status are required" });
+        
+        if (!reservationId) {
+            return res.status(400).json({ message: "Reservation ID is required" });
         }
 
-        if (!["accepted", "rejected"].includes(status)) {
-            return res.status(400).json({ message: "Status must be either 'accepted' or 'rejected'" });
-        }
+        // Automatically set status to "accepted" without requiring it in the body
         const updatedReservation = await Reservation.findByIdAndUpdate(
             reservationId,
-            { resStatus: status },
+            { resStatus: "accepted" }, // Hardcoded status
             { new: true, runValidators: true }
         );
 
@@ -62,7 +60,7 @@ export const confirmReservation = async (req, res) => {
         }
 
         res.status(200).json({
-            message: `Reservation ${status} successfully`,
+            message: "Reservation confirmed successfully",
             reservation: updatedReservation
         });
 
