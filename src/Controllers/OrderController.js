@@ -1,7 +1,7 @@
 import Order from '../UserModels/Order.js';
 import Food from '../UserModels/Food.js';
 import PaymentService from '../Services/paymentService.js';
-import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail } from '../Services/paymentService.js';
+import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail } from '../Services/emailService.js';
 
 class OrderController {
     static async createOrder(req, res) {
