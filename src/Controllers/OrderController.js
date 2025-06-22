@@ -83,3 +83,41 @@ export const updateOrderStatus = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+
+// Get all sum of Payment 
+export const getSumOfPayment = async (req, res) => {
+    try {
+        const sum = await Order.aggregate([
+            { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+        ]);
+        res.status(200).json(sum);
+    }catch(error){
+        res.status(500).json({ message: error.message });
+    }
+}
+
+
+// Get all number of Orders
+export const getNumberOfOrders = async (req, res) => {
+    try {
+        const count = await Order.countDocuments();
+        res.status(200).json(count);
+    }catch(error){
+        res.status(500).json({ message: error.message });
+    }
+}
+
+//Cancel Order
+export const cancelOrder = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { status } = req.body;
+        if(status !== 'preparing'){
+            return res.status(400).json({ message: 'Only can cancel order if status is preparing' });
+        }
+        const order = await Order.findByIdAndUpdate(orderId, { status: 'cancelled' });
+        res.status(200).json(order);
+    }catch(error){
+        res.status(500).json({ message: error.message });
+    }
+}
