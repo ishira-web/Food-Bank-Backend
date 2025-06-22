@@ -1,4 +1,4 @@
-import Order from '../UserModels/Order.js';
+import Order from '../UserModels/Order.js'
 import { isCustomer } from './UserController.js';
 import Counter from '../UserModels/Counter.js';
 
