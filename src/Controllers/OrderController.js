@@ -238,6 +238,7 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
     
+    
     // Prevent updating completed orders
     if (order.orderStatus === 'delivered' || order.orderStatus === 'cancelled') {
       return res.status(400).json({
