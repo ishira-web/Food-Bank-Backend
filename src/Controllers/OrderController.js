@@ -1,10 +1,12 @@
-import Order from '../UserModels/Order.js'
-import mongoose from 'mongoose';
+
+import Order from '../UserModels/Order.js';
 
 export const createOrder = async (req, res) => {
   try {
+    
+    const userId = req.user.id; // This comes from the verified token
+    
     const {
-      user,
       orderItems,
       totalAmount,
       deliveryAddress,
@@ -16,12 +18,8 @@ export const createOrder = async (req, res) => {
     } = req.body;
 
     // Basic validation
-    if (!user || !orderItems || !totalAmount || !deliveryAddress || !phone || !customerName) {
+    if (!orderItems || !totalAmount || !deliveryAddress || !phone || !customerName) {
       return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(user)) {
-      return res.status(400).json({ message: 'Invalid user ID' });
     }
 
     if (!Array.isArray(orderItems) || orderItems.length === 0) {
@@ -31,7 +29,7 @@ export const createOrder = async (req, res) => {
     // Validate card details if payment is by card
     if (paymentMethod === 'card') {
       if (!cardNumber || !cardType) {
-        return res.status(400).json({ message: 'Card number and card type are required for card payments' });
+        return res.status(400).json({ message: 'Card details required for card payments' });
       }
       
       // Validate card number format
@@ -42,8 +40,12 @@ export const createOrder = async (req, res) => {
 
     // Create order data object
     const orderData = {
-      user,
-      orderItems,
+      user: userId, // Use authenticated user ID
+      orderItems: orderItems.map(({ foodName, quantity, price }) => ({
+        foodName,
+        quantity,
+        price
+      })),
       totalAmount,
       deliveryAddress,
       phone,
@@ -83,10 +85,7 @@ export const createOrder = async (req, res) => {
 
     // Add payment details to response if applicable
     if (savedOrder.paymentMethod === 'card') {
-      responseData.paymentDetails = {
-        cardType: savedOrder.paymentDetails?.cardType,
-        maskedCardNumber: savedOrder.paymentDetails?.maskedCardNumber
-      };
+      responseData.paymentDetails = savedOrder.paymentDetails;
       
       // Include the paymentIntentId in the response
       if (savedOrder.paymentIntentId) {
