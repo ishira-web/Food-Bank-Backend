@@ -40,43 +40,6 @@ export const createReservation = async (req, res) => {
 };
 
 
-export const confirmReservation = async (req, res) => {
-    try {
-        const { reservationId } = req.params;
-        
-        if (!reservationId) {
-            return res.status(400).json({ message: "Reservation ID is required" });
-        }
-
-        // Automatically set status to "accepted" without requiring it in the body
-        const updatedReservation = await Reservation.findByIdAndUpdate(
-            reservationId,
-            { resStatus: "accepted" }, // Hardcoded status
-            { new: true, runValidators: true }
-        );
-
-        if (!updatedReservation) {
-            return res.status(404).json({ message: "Reservation not found" });
-        }
-
-        res.status(200).json({
-            message: "Reservation confirmed successfully",
-            reservation: updatedReservation
-        });
-
-    } catch (error) {
-        console.error("Error confirming reservation:", error);
-        
-        if (error.name === 'CastError') {
-            return res.status(400).json({ message: "Invalid reservation ID format" });
-        }
-        
-        res.status(500).json({ 
-            message: "Server error while confirming reservation",
-            error: error.message 
-        });
-    }
-};
 
 export const getAllReservations = async (req, res) => {
     try {
@@ -95,25 +58,59 @@ export const getAllReservations = async (req, res) => {
     }
 };
 
-export const rejectReservation = async (req, res) => {
+export const updateReservationStatus = async (req, res) => {
     try {
-        const { reservationId } = req.params;
-        if (!reservationId) { return res.status(400).json({ message: "Reservation ID is required" });}
-        const rejectedReservation = await Reservation.findByIdAndUpdate(reservationId,{ resStatus: "rejected" },{ new: true });
-        if (!rejectedReservation) {
+        const { id: reservationId } = req.params;  
+        const { status } = req.body;
+
+        // Validate inputs
+        if (!reservationId) {
+            return res.status(400).json({ message: "Reservation ID is required" });
+        }
+        if (!status) {
+            return res.status(400).json({ message: "Status is required" });
+        }
+
+        // FIX: Correct enum values (fixed typo)
+        const validStatuses = ["pending", "confirmed", "seated", "completed", "cancelled"];  // Changed from "Complented"
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ 
+                message: "Invalid status value",
+                validStatuses
+            });
+        }
+
+        const updatedReservation = await Reservation.findByIdAndUpdate(
+            reservationId,
+            { resStatus: status },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedReservation) {
             return res.status(404).json({ message: "Reservation not found" });
         }
+
         res.status(200).json({
-            message: "Reservation rejected successfully",
-            reservation: rejectedReservation
+            message: "Reservation status updated successfully",
+            reservation: updatedReservation
         });
+
     } catch (error) {
-        console.error("Error rejecting reservation:", error);
+        console.error("Error updating reservation status:", error);
+        
+        // Handle specific errors
         if (error.name === 'CastError') {
             return res.status(400).json({ message: "Invalid reservation ID format" });
         }
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ 
+                message: "Validation error",
+                details: error.errors 
+            });
+        }
+        
         res.status(500).json({ 
-            message: "Server error while rejecting reservation",
+            message: "Server error while updating reservation status",
             error: error.message 
         });
     }
