@@ -73,3 +73,14 @@ export const getMenu = async (req, res) => {
   }
 };
 
+
+//Number of Foods
+export const getNumberofoods = async(req,res)=>{
+  try {
+    const count = await Food.countDocuments();
+    res.status(200).json({ count });
+  } catch (error) {
+    console.error("Error getting food count:", error);
+    res.status(500).json({ message: "Server error while fetching food count" });
+  }
+}
