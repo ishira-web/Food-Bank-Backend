@@ -1,6 +1,6 @@
 // --- Updated UserRoutes.js ---
 import express from 'express';
-import {getLoggedInUser,updateUser,userLogin,userRegistration,} from '../Controllers/UserController.js';
+import {getAll, getLoggedInUser,getNumberofUsers,updateUser,userLogin,userRegistration,} from '../Controllers/UserController.js';
 import upload from '../Configs/multer.js';
 import { verifyToken } from '../Middleware/verifyToken.js';
 
@@ -10,3 +10,5 @@ userRoutes.post('/register', userRegistration);
 userRoutes.post('/login/me', userLogin);
 userRoutes.put('/:userId', upload.single('profilePicture'), updateUser);
 userRoutes.get('/me', verifyToken, getLoggedInUser);
+userRoutes.get('/allusers',getAll);
+userRoutes.get('/count',getNumberofUsers);

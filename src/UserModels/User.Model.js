@@ -19,7 +19,7 @@ const userSchema = mongoose.Schema({
         required : true,
     },
     profilePicture:{
-        type : String
+        type : String,
     },
     isActive : {
         type : Boolean,

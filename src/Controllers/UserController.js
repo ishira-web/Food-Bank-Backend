@@ -193,3 +193,31 @@ export const getLoggedInUser = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+
+
+// Get All users
+export const getAll  = async(req,res)=>{
+  try {
+     const users = await UserModel.find({}, '-password');
+     if(!users){
+      return res.status(200).json({success:true , message:'users are not found'})
+     }
+     return res.status(200).json({success:true,data:users})
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Error fetching users" });
+  }
+}
+
+//Get number of users
+
+export const getNumberofUsers = async(req,res)=>{
+  try {
+    const count = await UserModel.countDocuments({ role: "user" });
+    return res.status(200).json({count})
+  } catch (error) {
+    console.error("Error counting users:", error);
+    throw error;
+  }
+}
