@@ -2,7 +2,7 @@ import UserModel from "../UserModels/User.Model.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import cloudinary from "../Configs/Cloudinary.js";
-
+import fs from 'fs';
 // User Registration
 
 export const userRegistration = async(req,res)=>{
@@ -135,16 +135,22 @@ export const updateUser = async (req, res) => {
     const { email, firstName, lastName, gender, phoneNumber } = req.body;
 
     const updatedFields = { email, firstName, lastName, gender, phoneNumber };
+    
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'customer_profile_pictures'});
+     
+      const b64 = Buffer.from(req.file.buffer).toString("base64");
+      const dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+      
+      // Upload to Cloudinary using base64 string
+      const result = await cloudinary.uploader.upload(dataURI, {
+        folder: 'customer_profile_pictures',
+        resource_type: 'auto'
+      });
 
-      updatedFields.profilePicture = {
-        public_id: result.public_id,
-        url: result.secure_url,
-      };
-      fs.unlinkSync(req.file.path);
+      // Store only the URL string in the database
+      updatedFields.profilePicture = result.secure_url;
     }
+
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       updatedFields,
@@ -153,6 +159,7 @@ export const updateUser = async (req, res) => {
         runValidators: true,
       }
     );
+    
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -165,13 +172,20 @@ export const updateUser = async (req, res) => {
   } catch (error) {
     console.error("Error updating user:", error);
     
-    // If Cloudinary upload failed but file was created, clean up
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
+    // Handle different types of errors
+    let errorMessage = "Error updating user";
+    let statusCode = 500;
+    
+    if (error.name === 'ValidationError') {
+      errorMessage = "Validation failed: " + Object.values(error.errors).map(e => e.message).join(', ');
+      statusCode = 400;
+    } else if (error.http_code === 400) {
+      errorMessage = "Invalid image file format";
+      statusCode = 400;
     }
 
-    res.status(500).json({
-      message: "Error updating user",
+    res.status(statusCode).json({
+      message: errorMessage,
       error: error.message,
     });
   }

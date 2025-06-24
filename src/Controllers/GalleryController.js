@@ -7,31 +7,49 @@ export const createGallery = async (req, res) => {
         if (!req.file || !title) {
             return res.status(400).json({ message: "Image and title are required" });
         }
-        
-        const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: "gallery",
-            resource_type: "image"
-        });
+
+        let result;
+        if (req.file.buffer) {
+            const b64 = Buffer.from(req.file.buffer).toString("base64");
+            const dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+            result = await cloudinary.uploader.upload(dataURI, {
+                folder: "gallery",
+                resource_type: "image"
+            });
+        } 
+        else if (req.file.path) {
+            result = await cloudinary.uploader.upload(req.file.path, {
+                folder: "gallery",
+                resource_type: "image"
+            });
+        } else {
+            return res.status(400).json({ message: "Invalid file format" });
+        }
 
         const newGallery = new Gallery({
             image: result.secure_url,
             title
         });
-
         const savedGallery = await newGallery.save();
-        
         res.status(201).json({
             message: "Gallery created successfully",
             gallery: savedGallery
         });
     } catch (error) {
         console.error("Error creating gallery:", error);
+        if (error.http_code && error.http_code === 400) {
+            return res.status(400).json({ 
+                message: "File upload failed: " + error.message 
+            });
+        }
+
         if (error.name === 'ValidationError') {
             return res.status(400).json({ 
                 message: "Validation error",
                 details: error.errors 
             });
         }
+       
         res.status(500).json({ 
             message: "Server error while creating gallery",
             error: error.message 
