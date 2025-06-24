@@ -72,7 +72,7 @@ export const updateReservationStatus = async (req, res) => {
         }
 
         // FIX: Correct enum values (fixed typo)
-        const validStatuses = ["pending", "confirmed", "seated", "completed", "cancelled"];  // Changed from "Complented"
+        const validStatuses = ["pending", "confirmed", "seated", "completed", "cancelled"];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ 
                 message: "Invalid status value",
