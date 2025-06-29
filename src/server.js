@@ -9,10 +9,10 @@ import { optionalToken } from './Middleware/optionalToken.js';
 import { router } from './Routes/ReservationRoutes.js';
 import OrderRoutes from './Routes/OrderRoutes.js';
 import galleryRouter from './Routes/GalleryRoutes.js';
-
+import job from './Corn/corn.js';
 
 dotenv.config();
-
+job.start();
 const app = express();
 
 // Middleware
