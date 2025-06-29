@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(optionalToken); 
 
 // Routes
-app.use('/api/account', userRoutes);
+app.use('api/account', userRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/food', foodRoute);
 app.use('/api/reservation',router);
